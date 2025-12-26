@@ -1,0 +1,12 @@
+{
+    "configurations": [
+        {
+            "name": "Debug pymsort",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }
+    ]
+}

@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "ms-python.python",
+        "ms-python.pylint",
+        "charliermarsh.ruff",
+        "davidanson.vscode-markdownlint",
+        "ms-python.debugpy",
+    ]
+}

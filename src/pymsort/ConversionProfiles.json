@@ -1,0 +1,189 @@
+[
+    {
+        "UseCase": "Sony DSC-RX100, Panasonic HD-SD600",
+        "Description": "*.mts (Progressive) -> *.mp4 (e.g. Sony DSC-RX100, Panasonic HD-SD600)",
+        "AudioFormat": "AC-3",
+        "VideoFormat": "AVC",
+        "VideoScanType": "Progressive",
+        "FfmpegExecutionString": "ffmpeg -threads 0 -loglevel error -i %s -map_metadata 0 -c:v copy -c:a libfdk_aac -vbr 5 -f mp4 %s",
+        "OriginalFileExtension": ".mts",
+        "NewFileExtension": ".mp4",
+        "IsLivePhotoVideo": false
+    },
+    {
+        "UseCase": "Sony DSC-RX100, Panasonic HD-SD600",
+        "Description": "*.mts (Interlaced) -> *.mp4 (e.g. Sony DSC-RX100, Panasonic HD-SD600)",
+        "AudioFormat": "AC-3",
+        "VideoFormat": "AVC",
+        "VideoScanType": "Interlaced",
+        "FfmpegExecutionString": "ffmpeg -threads 0 -loglevel error -i %s -map_metadata 0 -filter:v yadif=1 -crf 16 -c:v libx264 -c:a libfdk_aac -vbr 5 -f mp4 %s",
+        "OriginalFileExtension": ".mts",
+        "NewFileExtension": ".mp4",
+        "IsLivePhotoVideo": false
+    },
+    {
+        "UseCase": "Olympus STYLUS TG-830",
+        "Description": "keep *.mov container (e.g. Olympus STYLUS TG-830)",
+        "AudioFormat": "PCM",
+        "VideoFormat": "AVC",
+        "VideoScanType": "Progressive",
+        "FfmpegExecutionString": "",
+        "OriginalFileExtension": ".mov",
+        "NewFileExtension": ".mov",
+        "IsLivePhotoVideo": false
+    },
+    {
+        "UseCase": "iPhone/iPad Legacy (AVC)",
+        "Description": "keep *.mov to preserve com.apple.quicktime tags (e.g. iPhone/iPad video)",
+        "AudioFormat": "AAC",
+        "VideoFormat": "AVC",
+        "VideoScanType": "Progressive",
+        "FfmpegExecutionString": "",
+        "OriginalFileExtension": ".mov",
+        "NewFileExtension": ".mov",
+        "IsLivePhotoVideo": false
+    },
+    {
+        "UseCase": "iPhone/iPad Legacy Live Photo (AVC, no audio)",
+        "Description": "keep *.mov to preserve com.apple.quicktime tags (e.g. iPhone/iPad Live Photo video)",
+        "AudioFormat": "",
+        "VideoFormat": "AVC",
+        "VideoScanType": "Progressive",
+        "FfmpegExecutionString": "",
+        "OriginalFileExtension": ".mov",
+        "NewFileExtension": ".mov",
+        "IsLivePhotoVideo": true
+    },
+    {
+        "UseCase": "iPhone/iPad Legacy Live Photo (AVC, PCM)",
+        "Description": "keep *.mov to preserve com.apple.quicktime tags (e.g. iPhone/iPad Live Photo video)",
+        "AudioFormat": "PCM",
+        "VideoFormat": "AVC",
+        "VideoScanType": "Progressive",
+        "FfmpegExecutionString": "",
+        "OriginalFileExtension": ".mov",
+        "NewFileExtension": ".mov",
+        "IsLivePhotoVideo": true
+    },
+    {
+        "UseCase": "iPhone/iPad Legacy Live Photo (AVC, AAC)",
+        "Description": "keep *.mov to preserve com.apple.quicktime tags (e.g. iPhone/iPad Live Photo video)",
+        "AudioFormat": "AAC",
+        "VideoFormat": "AVC",
+        "VideoScanType": "Progressive",
+        "FfmpegExecutionString": "",
+        "OriginalFileExtension": ".mov",
+        "NewFileExtension": ".mov",
+        "IsLivePhotoVideo": true
+    },
+    {
+        "UseCase": "iPhone/iPad Special Capture (AVC, no audio)",
+        "Description": "keep *.mov to preserve com.apple.quicktime tags (e.g. Time-lapse)",
+        "AudioFormat": "",
+        "VideoFormat": "AVC",
+        "VideoScanType": "Progressive",
+        "FfmpegExecutionString": "",
+        "OriginalFileExtension": ".mov",
+        "NewFileExtension": ".mov",
+        "IsLivePhotoVideo": false
+    },
+    {
+        "UseCase": "iPhone/iPad Modern (HEVC)",
+        "Description": "keep *.mov to preserve com.apple.quicktime tags (e.g. iPhone, iPad)",
+        "AudioFormat": "AAC",
+        "VideoFormat": "HEVC",
+        "VideoScanType": "",
+        "FfmpegExecutionString": "",
+        "OriginalFileExtension": ".mov",
+        "NewFileExtension": ".mov",
+        "IsLivePhotoVideo": false
+    },
+    {
+        "UseCase": "iPhone/iPad Modern Special Capture (HEVC, no audio)",
+        "Description": "keep *.mov to preserve com.apple.quicktime tags (e.g. Time-lapse)",
+        "AudioFormat": "",
+        "VideoFormat": "HEVC",
+        "VideoScanType": "",
+        "FfmpegExecutionString": "",
+        "OriginalFileExtension": ".mov",
+        "NewFileExtension": ".mov",
+        "IsLivePhotoVideo": false
+    },
+    {
+        "UseCase": "iPhone/iPad Modern QuickTake (HEVC, PCM)",
+        "Description": "keep *.mov to preserve com.apple.quicktime tags (e.g. QuickTake)",
+        "AudioFormat": "PCM",
+        "VideoFormat": "HEVC",
+        "VideoScanType": "",
+        "FfmpegExecutionString": "",
+        "OriginalFileExtension": ".mov",
+        "NewFileExtension": ".mov",
+        "IsLivePhotoVideo": false
+    },
+    {
+        "UseCase": "iPhone/iPad Modern Live Photo (HEVC, no audio)",
+        "Description": "keep *.mov to preserve com.apple.quicktime tags (e.g. iPhone/iPad Live Photo video)",
+        "AudioFormat": "",
+        "VideoFormat": "HEVC",
+        "VideoScanType": "",
+        "FfmpegExecutionString": "",
+        "OriginalFileExtension": ".mov",
+        "NewFileExtension": ".mov",
+        "IsLivePhotoVideo": true
+    },
+    {
+        "UseCase": "iPhone/iPad Modern Live Photo (HEVC, PCM)",
+        "Description": "keep *.mov to preserve com.apple.quicktime tags (e.g. iPhone/iPad Live Photo video)",
+        "AudioFormat": "PCM",
+        "VideoFormat": "HEVC",
+        "VideoScanType": "",
+        "FfmpegExecutionString": "",
+        "OriginalFileExtension": ".mov",
+        "NewFileExtension": ".mov",
+        "IsLivePhotoVideo": true
+    },
+    {
+        "UseCase": "iPhone/iPad Modern Live Photo (HEVC, AAC)",
+        "Description": "keep *.mov to preserve com.apple.quicktime tags (e.g. iPhone, iPad)",
+        "AudioFormat": "AAC",
+        "VideoFormat": "HEVC",
+        "VideoScanType": "",
+        "FfmpegExecutionString": "",
+        "OriginalFileExtension": ".mov",
+        "NewFileExtension": ".mov",
+        "IsLivePhotoVideo": true
+    },
+    {
+        "UseCase": "DJI Mimo App (AVC)",
+        "Description": "don't convert (DJI Mimo app)",
+        "AudioFormat": "",
+        "VideoFormat": "AVC",
+        "VideoScanType": "Progressive",
+        "FfmpegExecutionString": "",
+        "OriginalFileExtension": ".mp4",
+        "NewFileExtension": ".mp4",
+        "IsLivePhotoVideo": false
+    },
+    {
+        "UseCase": "DJI Mimo App (HEVC)",
+        "Description": "don't convert (DJI Mimo app)",
+        "AudioFormat": "AAC",
+        "VideoFormat": "HEVC",
+        "VideoScanType": "",
+        "FfmpegExecutionString": "",
+        "OriginalFileExtension": ".mp4",
+        "NewFileExtension": ".mp4",
+        "IsLivePhotoVideo": false
+    },
+    {
+        "UseCase": "Already MP4 (sort only)",
+        "Description": "*.mp4 sort only (e.g. Sony DSC-RX100, WhatsApp recordings)",
+        "AudioFormat": "AAC",
+        "VideoFormat": "AVC",
+        "VideoScanType": "Progressive",
+        "FfmpegExecutionString": "",
+        "OriginalFileExtension": ".mp4",
+        "NewFileExtension": ".mp4",
+        "IsLivePhotoVideo": false
+    }
+]

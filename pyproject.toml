@@ -1,0 +1,19 @@
+[project]
+name = "pymsort"
+version = "0.1.0"
+description = "Python Media Sorter - Organize and convert media files (photos and videos) from various cameras and devices based on device specific profiles."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "dataclasses-json>=0.6.7",
+    "pyexiftool>=0.5.6",
+    "pymediainfo>=7.0.1",
+    "pyside6>=6.10.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-qt>=4.5.0",
+    "ruff>=0.14.10",
+]
