@@ -6,8 +6,8 @@ A desktop application for organizing and converting media files (photos and vide
 
 - **Drag & Drop Interface** with background import and live progress
 - **Automatic Organization** by camera model and capture date
-- **Smart Video Conversion** with metadata preservation
-- **17 Device Profiles** for Sony, Panasonic, Olympus, iPhone, DJI cameras
+- **Video Conversion** with metadata preservation
+- **Device Profiles** for Sony, Panasonic, Olympus, iPhone, DJI cameras
 - **Live Photo Support** for Apple devices
 
 ### Supported Formats
@@ -20,8 +20,7 @@ A desktop application for organizing and converting media files (photos and vide
 
 - **Models**: MediaFile, ConversionProfile
 - **Services**: ExifTool, FFmpeg, MediaInfo integrations
-- **Workers**: Background processing with Qt signals/slots
-- **131 unit tests** with comprehensive coverage
+- **Workers**: Background processing with Qt signals/slot
 
 ## Requirements
 
@@ -46,7 +45,7 @@ A desktop application for organizing and converting media files (photos and vide
 
 - **Python**: 3.13+
 - **Package Manager**: [uv](https://docs.astral.sh/uv/) (recommended) or pip
-- **Dependencies**: PySide6, pymediainfo, pyexiftool (installed automatically)
+- **Dependencies**: PySide6, pymediainfo (installed automatically)
 
 ## Installation
 
@@ -54,13 +53,6 @@ A desktop application for organizing and converting media files (photos and vide
 # Clone repository
 git clone https://github.com/ExploracuriousAlex/pymsort.git
 cd pymsort
-
-# Install external tools (macOS)
-brew install exiftool ffmpeg
-
-# Install Python dependencies
-curl -LsSf https://astral.sh/uv/install.sh | sh  # Install uv
-uv sync  # Install dependencies
 
 # Verify
 uv run pytest
@@ -83,37 +75,40 @@ uv run python main.py
 ### File Organization
 
 Files are organized as: `{CameraModel}/{Year}/{Month-MonthName}/filename`
+The month's name will be in German.
 
 Example:
 
 ```
-Sony DSC-RX100/2024/01-January/photo.jpg
-iPhone/2024/12-December/IMG_0001.mov
+Sony DSC-RX100/2024/01-Januar/photo.jpg
+iPhone/2024/12-Dezember/IMG_0001.mov
 ```
 
 ## Conversion Profiles
 
-17 pre-configured profiles in `ConversionProfiles.json`:
+Pre-configured profiles in `src/ConversionProfiles.json`:
 
 - Sony DSC-RX100, Panasonic HD-SD600 (MTS to MP4)
 - iPhone/iPad (AVC & HEVC, Live Photos)
 - Olympus, DJI cameras
+- ...
 
 Profiles match on file extension, video/audio format, scan type, and Live Photo flag.
-
-## Configuration
-
-- **config.py**: Tool paths and temp directory
-- **ConversionProfiles.json**: Video conversion profiles
 
 ## Development
 
 ```bash
-# Run tests
-uv run pytest -v
+# Sort imports
+uv run ruff check --select I --fix
+
+# Fix lint errors
+uv run ruff check --fix
 
 # Format code
 uv run ruff format
+
+# Run tests
+uv run pytest -v
 ```
 
 ## Troubleshooting
@@ -122,8 +117,6 @@ uv run ruff format
 - **Slow import**: Network drives → copy locally first
 - **Conversion fails**: Check FFmpeg libfdk_aac support, review logs
 - **Organization issues**: Verify EXIF metadata with `exiftool file.jpg`
-- Temporary files cleaned up after processing
-- Large file support (>2GB) via ExifTool API flag
 
 ### Cross-Platform Compatibility
 
@@ -139,30 +132,12 @@ uv run ruff format
 - Progress updates limited to prevent signal flooding
 - Lazy video analysis (only for video files)
 
-## License6)
-
-- Initial Python release
-- Complete feature parity with C# version
-- 131 unit tests with 100% pass rate
-- 17 conversion profiles
-- Background import with progress
-- Responsive UI during all operations
-- Comprehensive error handling and logging
-- Uses pyexiftool library for efficient ExifTool integration
-- German locale support for month names
-- Improved error reporting with processing summary
-- Uses ExifTool by Phil Harvey
-- Uses FFmpeg project
-- Uses MediaInfo library
-
 ## Version History
 
-### v1.0.0 (2025-12-25)
+### v0.1.0 (2025-12-25)
 
 - Initial Python release
-- Complete feature parity with C# version
-- 135 unit tests with 100% pass rate
-- 17 conversion profiles
-- Background import with progress
-- Responsive UI during all operations
-- Comprehensive error handling and logging
+
+### v0.1.1 (2025-12-27)
+
+- Removed pyexiftool

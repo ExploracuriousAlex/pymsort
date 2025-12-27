@@ -87,7 +87,7 @@ class ImportWorker(QRunnable):
     ) -> None:
         """Process a single file during import."""
         try:
-            mime_type = metadata.get("File:MIMEType", "unknown")
+            mime_type = metadata.get("MIMEType", "unknown")
 
             if not mime_type or mime_type == "unknown":
                 logger.debug(f"Skipping {file_path} - no MIME type")

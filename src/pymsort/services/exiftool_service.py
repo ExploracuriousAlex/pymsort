@@ -2,74 +2,51 @@
 Service for interacting with ExifTool.
 Handles metadata extraction, restoration, and file organization.
 
-Uses pyexiftool library for efficient batch-mode communication with ExifTool.
 """
 
+import json
 import logging
+import subprocess
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import List, Dict, Any, Optional
 
-from exiftool import ExifToolHelper
 
 logger = logging.getLogger(__name__)
 
 
 class ExifToolService:
-    """Service class for ExifTool operations.
-
-    Uses pyexiftool to run ExifTool in batch mode for efficiency.
-    The ExifTool process is started on initialization and should be
-    terminated when no longer needed by calling terminate() or using
-    the service as a context manager.
-    """
+    """Service class for ExifTool operations."""
 
     def __init__(self, exiftool_path: str = "exiftool"):
         """
-        Initialize ExifTool service and start the ExifTool process.
+        Initialize ExifTool service.
 
         Args:
             exiftool_path: Path to exiftool executable (default: "exiftool" assumes it's in PATH or application directory)
 
-        Raises:
-            RuntimeError: If ExifTool cannot be started
         """
         self.exiftool_path = exiftool_path
+        self._verify_exiftool()
 
+    def _verify_exiftool(self) -> None:
+        """Verify that ExifTool is available and working."""
         try:
-            self._et = ExifToolHelper(common_args=["-G"], executable=exiftool_path)
-            self._et.run()
-            logger.info(f"ExifTool found, version: {self._et.version}")
+            result = subprocess.run(
+                [self.exiftool_path, "-ver"], capture_output=True, text=True, timeout=5
+            )
+            if result.returncode == 0:
+                version = result.stdout.strip()
+                logger.info(f"ExifTool found, version: {version}")
+            else:
+                raise RuntimeError(f"ExifTool verification failed: {result.stderr}")
         except FileNotFoundError:
             raise RuntimeError(
-                f"ExifTool not found at '{exiftool_path}'. "
-                "Please install ExifTool and place it in your system PATH or application directory."
+                f"ExifTool not found at '{self.exiftool_path}'. "
+                "Please install ExifTool and ensure it's in your PATH."
             )
         except Exception as e:
-            raise RuntimeError(f"Error starting ExifTool: {e}")
-
-    def terminate(self) -> None:
-        """Terminate the ExifTool process."""
-        if hasattr(self, "_et") and self._et is not None and self._et.running:
-            self._et.terminate()
-            logger.debug("ExifTool process terminated")
-
-    def __enter__(self) -> "ExifToolService":
-        """Context manager entry."""
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        """Context manager exit - terminate ExifTool process."""
-        self.terminate()
-
-    def __del__(self) -> None:
-        """Destructor - ensure ExifTool process is terminated."""
-        self.terminate()
-
-    @property
-    def version(self) -> str:
-        """Get ExifTool version."""
-        return self._et.version
+            raise RuntimeError(f"Error verifying ExifTool: {e}")
 
     def extract_metadata(self, file_paths: List[Path]) -> List[Dict[str, Any]]:
         """
@@ -89,18 +66,48 @@ class ExifToolService:
 
         logger.info(f"Extracting metadata from {len(file_paths)} files")
 
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".txt", delete=False, encoding="utf-8"
+        ) as f:
+            arg_file = Path(f.name)
+            for file_path in file_paths:
+                f.write(f"{file_path}\n")
         try:
-            metadata = self._et.get_metadata(
-                file_paths,
-                params=["-api", "largefilesupport=1"],
-                # params=["-api", "largefilesupport=1", "-charset", "filename=utf8"]
+            # Execute ExifTool with argument file
+            cmd = [
+                self.exiftool_path,
+                "-api",
+                "largefilesupport=1",
+                "-charset",
+                "filename=utf8",
+                "-@",
+                str(arg_file),
+                "-json",
+            ]
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                timeout=300,  # 5 minute timeout
             )
+            if result.returncode != 0:
+                logger.error(f"ExifTool error: {result.stderr}")
+                raise RuntimeError(
+                    f"ExifTool failed with return code {result.returncode}"
+                )
+            metadata = json.loads(result.stdout)
             logger.debug(f"Successfully extracted metadata from {len(metadata)} files")
             return metadata
 
-        except Exception as e:
-            logger.error(f"ExifTool error: {e}")
-            raise RuntimeError(f"ExifTool failed: {e}")
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse ExifTool JSON output: {e}")
+            raise RuntimeError(f"Failed to parse ExifTool output: {e}")
+        except subprocess.TimeoutExpired:
+            logger.error("ExifTool timed out")
+            raise RuntimeError("ExifTool execution timed out")
+        finally:
+            arg_file.unlink(missing_ok=True)
 
     def restore_metadata(self, source_file: Path, destination_file: Path) -> bool:
         """
@@ -116,7 +123,8 @@ class ExifToolService:
         logger.debug(f"Restoring metadata from {source_file} to {destination_file}")
 
         try:
-            self._et.execute(
+            cmd = [
+                self.exiftool_path,
                 "-api",
                 "largefilesupport=1",
                 "-charset",
@@ -125,7 +133,11 @@ class ExifToolService:
                 "-tagsfromfile",
                 str(source_file),
                 str(destination_file),
-            )
+            ]
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+            if result.returncode != 0:
+                logger.error(f"Failed to restore metadata: {result.stderr}")
+                return False
 
             # Clean up _original backup file created by ExifTool
             backup_file = destination_file.parent / f"{destination_file.name}_original"
@@ -155,7 +167,8 @@ class ExifToolService:
         logger.debug(f"Setting file dates for {file_path}")
 
         try:
-            result = self._et.execute(
+            cmd = [
+                self.exiftool_path,
                 "-api",
                 "largefilesupport=1",
                 # FileModifyDate priority
@@ -173,13 +186,18 @@ class ExifToolService:
                 "-FileCreateDate<DateTimeOriginal",
                 "-FileCreateDate<CreationDate",
                 str(file_path),
-            )
+            ]
 
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
             # ExifTool returns message about files failed condition check, which is acceptable
-            if "files failed condition" not in result:
+            if result.returncode != 0 and "files failed condition" not in result.stdout:
+                logger.warning(
+                    f"Setting file dates returned code {result.returncode}: {result.stderr}"
+                )
+                return False
                 # Clean up _original backup file
-                backup_file = file_path.parent / f"{file_path.name}_original"
-                backup_file.unlink(missing_ok=True)
+            backup_file = file_path.parent / f"{file_path.name}_original"
+            backup_file.unlink(missing_ok=True)
 
             logger.debug(f"Successfully set file dates for {file_path}")
             return True
@@ -247,8 +265,9 @@ class ExifToolService:
                 )
 
             # Build command arguments
-            args = (
+            cmd = (
                 [
+                    self.exiftool_path,
                     "-api",
                     "largefilesupport=1",
                     "-charset",
@@ -263,12 +282,17 @@ class ExifToolService:
                 + ["-v"]
             )  # Verbose for tracking moves
 
-            # Execute command
-            result = self._et.execute(*args)
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                timeout=300,
+            )
 
             # Parse output to track source -> destination mapping
             file_mapping = {}
-            for line in result.split("\n"):
+            for line in result.stdout.split("\n"):
                 if " --> " in line:
                     parts = line.split(" --> ")
                     if len(parts) == 2:
@@ -302,18 +326,26 @@ class ExifToolService:
             Capture mode string or None if not found
         """
         try:
-            data = self._et.get_tags(
-                file_path,
-                tags=["CaptureMode", "ApplePhotosCaptureMode"],
-                params=["-api", "largefilesupport=1"],
-                # params=["-api", "largefilesupport=1", "-charset", "filename=utf8"]
-            )
+            cmd = [
+                self.exiftool_path,
+                "-api",
+                "largefilesupport=1",
+                "-charset",
+                "filename=utf8",
+                "-json",
+                "-CaptureMode",
+                "-ApplePhotosCaptureMode",
+                str(file_path),
+            ]
 
-            if data:
-                # Check for both possible tag names
-                return data[0].get("CaptureMode") or data[0].get(
-                    "ApplePhotosCaptureMode"
-                )
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+            if result.returncode == 0:
+                data = json.loads(result.stdout)
+                if data:
+                    # Check for both possible tag names
+                    return data[0].get("CaptureMode") or data[0].get(
+                        "ApplePhotosCaptureMode"
+                    )
 
             return None
 

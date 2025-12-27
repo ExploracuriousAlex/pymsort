@@ -206,3 +206,16 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 ffmpeg
+exiftool_files/exiftool.pl
+exiftool_files/libgcc_s_seh-1.dll
+exiftool_files/liblzma-5__.dll
+exiftool_files/libstdc++-6.dll
+exiftool_files/libwinpthread-1.dll
+exiftool_files/LICENSE
+exiftool_files/Licenses_Strawberry_Perl.zip
+exiftool_files/perl.exe
+exiftool_files/perl532.dll
+exiftool_files/readme_windows.txt
+exiftool_files/windows_exiftool.txt
+exiftool.exe
+ffmpeg.exe

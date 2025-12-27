@@ -15,14 +15,22 @@ def check_exiftool() -> Tuple[bool, str]:
     Returns:
         Tuple of (success, message)
     """
-    # Import here to avoid circular imports
-    from ..services.exiftool_service import ExifToolService
+    if not config.exiftool_path:
+        return (
+            False,
+            "ExifTool not found in PATH. Please install ExifTool and ensure it's in your system PATH.",
+        )
 
     try:
-        with ExifToolService(config.exiftool_path) as et:
-            return True, f"ExifTool {et.version}"
-    except RuntimeError as e:
-        return False, str(e)
+        result = subprocess.run(
+            [config.exiftool_path, "-ver"], capture_output=True, text=True, timeout=5
+        )
+        if result.returncode == 0:
+            version = result.stdout.strip()
+            logger.info(f"ExifTool version {version} found at {config.exiftool_path}")
+            return True, f"ExifTool {version}"
+        else:
+            return False, f"ExifTool found but returned error: {result.stderr}"
     except Exception as e:
         return False, f"Failed to run ExifTool: {e}"
 

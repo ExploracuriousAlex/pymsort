@@ -13,40 +13,39 @@ from pymsort.utils.startup_checks import (
 class TestCheckExifTool:
     """Test cases for check_exiftool function."""
 
-    @patch("pymsort.services.exiftool_service.ExifToolHelper")
-    def test_exiftool_available(self, mock_helper_class):
+    @patch("pymsort.utils.startup_checks.config")
+    @patch("pymsort.utils.startup_checks.subprocess.run")
+    def test_exiftool_available(self, mock_run, mock_config):
         """Test successful ExifTool check."""
-        # Setup mock
-        mock_helper = MagicMock()
-        mock_helper.version = "12.50"
-        mock_helper.running = True
-        mock_helper_class.return_value = mock_helper
+        mock_config.exiftool_path = "/usr/local/bin/exiftool"
+        mock_run.return_value = MagicMock(returncode=0, stdout="12.50\n", stderr="")
 
         success, message = check_exiftool()
 
         assert success is True
         assert "12.50" in message
 
-    @patch("pymsort.services.exiftool_service.ExifToolHelper")
-    def test_exiftool_not_found(self, mock_helper_class):
+    @patch("pymsort.utils.startup_checks.config")
+    def test_exiftool_not_found(self, mock_config):
         """Test ExifTool not found."""
-        # Simulate FileNotFoundError when tool not found
-        mock_helper_class.side_effect = FileNotFoundError("ExifTool not found")
+        mock_config.exiftool_path = None
 
         success, message = check_exiftool()
 
         assert success is False
-        assert "not found" in message.lower() or "ExifTool" in message
+        assert "not found" in message.lower()
 
-    @patch("pymsort.services.exiftool_service.ExifToolHelper")
-    def test_exiftool_unexpected_error(self, mock_helper_class):
+    @patch("pymsort.utils.startup_checks.config")
+    @patch("pymsort.utils.startup_checks.subprocess.run")
+    def test_exiftool_unexpected_error(self, mock_run, mock_config):
         """Test unexpected error during ExifTool check."""
-        mock_helper_class.side_effect = Exception("Unexpected error")
+        mock_config.exiftool_path = "/usr/local/bin/exiftool"
+        mock_run.side_effect = Exception("Unexpected error")
 
         success, message = check_exiftool()
 
         assert success is False
-        assert "Error starting ExifTool" in message or "Unexpected error" in message
+        assert "Failed to run ExifTool" in message
 
 
 class TestCheckFFmpeg:

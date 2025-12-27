@@ -57,8 +57,8 @@ class TestImportWorker:
 
         # Configure mocks
         mock_services["exiftool"].extract_metadata.return_value = [
-            {"SourceFile": "/path/to/image1.jpg", "File:MIMEType": "image/jpeg"},
-            {"SourceFile": "/path/to/image2.png", "File:MIMEType": "image/png"},
+            {"SourceFile": "/path/to/image1.jpg", "MIMEType": "image/jpeg"},
+            {"SourceFile": "/path/to/image2.png", "MIMEType": "image/png"},
         ]
 
         worker = ImportWorker(
@@ -100,7 +100,7 @@ class TestImportWorker:
 
         # Configure mocks
         mock_services["exiftool"].extract_metadata.return_value = [
-            {"SourceFile": "/path/to/video.mp4", "File:MIMEType": "video/mp4"}
+            {"SourceFile": "/path/to/video.mp4", "MIMEType": "video/mp4"}
         ]
         mock_services["mediainfo"].analyze_file.return_value = {
             "general": {"format": "MPEG-4", "is_live_photo": False},
@@ -145,8 +145,8 @@ class TestImportWorker:
 
         # Configure mocks - PDF is unsupported, JPG is supported
         mock_services["exiftool"].extract_metadata.return_value = [
-            {"SourceFile": "/path/to/document.pdf", "File:MIMEType": "application/pdf"},
-            {"SourceFile": "/path/to/image.jpg", "File:MIMEType": "image/jpeg"},
+            {"SourceFile": "/path/to/document.pdf", "MIMEType": "application/pdf"},
+            {"SourceFile": "/path/to/image.jpg", "MIMEType": "image/jpeg"},
         ]
 
         worker = ImportWorker(
@@ -194,7 +194,7 @@ class TestImportWorker:
 
         # Configure mocks
         mock_services["exiftool"].extract_metadata.return_value = [
-            {"SourceFile": f"/path/to/file{i}.jpg", "File:MIMEType": "image/jpeg"}
+            {"SourceFile": f"/path/to/file{i}.jpg", "MIMEType": "image/jpeg"}
             for i in range(5)
         ]
 
@@ -229,7 +229,7 @@ class TestImportWorker:
 
         # Configure mocks
         mock_services["exiftool"].extract_metadata.return_value = [
-            {"SourceFile": "/path/to/video.mp4", "File:MIMEType": "video/mp4"}
+            {"SourceFile": "/path/to/video.mp4", "MIMEType": "video/mp4"}
         ]
         mock_services["mediainfo"].analyze_file.return_value = None
 

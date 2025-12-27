@@ -1,6 +1,7 @@
 """Tests for Config class."""
 
 import os
+import sys
 from pathlib import Path
 from unittest.mock import patch
 
@@ -56,35 +57,12 @@ class TestConfig:
 
         assert result is False
 
-    def test_find_tool_in_local_directory(self, tmp_path):
-        """Test finding tool in local directory."""
-        # Create a mock tool file in local directory
-        project_root = tmp_path / "project"
-        project_root.mkdir()
-        tool_file = project_root / "exiftool"
-        tool_file.touch(mode=0o755)
-
-        config = Config()
-
-        with patch.object(
-            Path, "parent", new_callable=lambda: property(lambda self: project_root)
-        ):
-            # Mock __file__ location to point to our tmp structure
-            with patch(
-                "pymsort.utils.config.__file__", str(project_root / "config.py")
-            ):
-                result = config.find_tool("exiftool")
-
-        # Note: This test is complex due to path navigation, might need adjustment
-        # For now, test the PATH fallback instead
-
     def test_find_tool_in_path(self):
         """Test finding tool in PATH."""
         config = Config()
 
         # Mock PATH environment variable
         fake_path = "/usr/bin:/usr/local/bin"
-        fake_tool = Path("/usr/local/bin/exiftool")
 
         with patch.dict(os.environ, {"PATH": fake_path}):
             with patch.object(Path, "is_file", return_value=True):
@@ -106,7 +84,8 @@ class TestConfig:
     def test_find_tool_windows_exe_extension(self):
         """Test that Windows .exe extension is added when needed."""
         # Skip this test on non-Windows systems
-        pytest.skip("Windows-specific test, skipping on non-Windows platform")
+        if sys.platform != "win32":
+            pytest.skip("Windows-specific test, skipping on non-Windows platform")
 
     def test_singleton_config_instance(self):
         """Test that config is used as singleton in the module."""
