@@ -2,11 +2,13 @@
 Tests for ExifToolService.
 """
 
-import pytest
 import json
 import subprocess
 from pathlib import Path
-from unittest.mock import Mock, patch, mock_open
+from unittest.mock import Mock, mock_open, patch
+
+import pytest
+
 from pymsort.services.exiftool_service import ExifToolService
 
 

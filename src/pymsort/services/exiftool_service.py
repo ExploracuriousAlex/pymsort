@@ -9,8 +9,7 @@ import logging
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -235,6 +234,16 @@ class ExifToolService:
 
         try:
             # Build filename template based on file type
+
+            # ExifTool evaluates the command-line arguments left to right, and latter assignments to the same tag override earlier ones, so the Directory for each image is ultimately set by the rightmost copy argument that is valid for that image.
+            # means the date is taken from tags with the following priority:
+            # 1. CreationDate - QuickTime tag which is used in videos; in addition to CreateDate it also contains the time zone
+            # 2. DateTimeOriginal - Date and time of original data generation
+            # 3. CreateDate - (called DateTimeDigitized by the EXIF spec) Date and time of digital data generation
+            # 4. FileModifyDate - Date and time of the last change to the file itself; more reliable than the FileCreateDate since FileCreateDate is changed e.g. on copy operation
+            # %-.37f   ignores the last 36 characters of the file name since this is just an UID for internal use
+            # %+2c     will add a copy number which is automatically incremented if the file already exists in the format _01, _02 ...
+
             if is_live_photo:
                 # Live Photo videos go to LivePhotoVideo subfolder
                 filename_template = (
