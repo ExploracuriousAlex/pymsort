@@ -109,7 +109,7 @@ class ProcessWorker(QRunnable):
             self.signals.progress.emit(
                 idx,
                 len(video_files),
-                f"({idx} of {len(video_files)}) - Processing video {video_file.file_name}",
+                f"({idx} of {len(video_files)}) - Processing video {video_file.file_name or Path(video_file.source_file).name}",
             )
 
             self._update_file_state(file_idx, ProcessingState.InProgress)
@@ -208,7 +208,7 @@ class ProcessWorker(QRunnable):
             self.signals.progress.emit(
                 idx,
                 len(image_files),
-                f"({idx} of {len(image_files)}) - Copying image {image_file.file_name}",
+                f"({idx} of {len(image_files)}) - Copying image {image_file.file_name or Path(image_file.source_file).name}",
             )
 
             self._update_file_state(file_idx, ProcessingState.InProgress)
